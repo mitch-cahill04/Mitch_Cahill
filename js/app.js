@@ -74,7 +74,7 @@ function renderNav() {
   const d = portfolioState.data.personal;
   const initials = d.name.split(' ').map(w => w[0]).join('');
   const logo = document.querySelector('.logo-initials');
-  if (logo) logo.textContent = initials;
+  if (logo) logo.innerHTML = '<img src="Crest.webp" alt="Cahill Crest" style="height:32px; width:32px; object-fit:contain;">';
   document.title = `${d.name} — Portfolio`;
 }
 
