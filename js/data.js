@@ -219,7 +219,7 @@ const PORTFOLIO_DATA = {
     {
       id:          "work-1",
       title:       "Oasis Security: A Cyber Security Startup Dedicated to NHI Management",
-      publication: "The Venturist — Substack",
+      publication: "Research Project — Substack",
       date:        "Dec 2025",
       type:        "Article",
       description: "An analysis of Non-Human Identity (NHI) management and agentic access in cybersecurity, using Oasis Security as a case study for how modern organizations handle machine identity risk.",
