@@ -215,6 +215,16 @@ const PORTFOLIO_DATA = {
   ],
 
   /* ── PUBLISHED WORKS ─────────────────────────────────────────*/
-  publishedWorks: [],
+  publishedWorks: [
+    {
+      id:          "work-1",
+      title:       "Oasis Security: A Cyber Security Startup Dedicated to NHI Management",
+      publication: "The Venturist — Substack",
+      date:        "Dec 2025",
+      type:        "Article",
+      description: "An analysis of Non-Human Identity (NHI) management and agentic access in cybersecurity, using Oasis Security as a case study for how modern organizations handle machine identity risk.",
+      url:         "https://mitchcahill.substack.com/p/oasis-security-a-cyber-security-startup",
+    },
+  ],
 
 };

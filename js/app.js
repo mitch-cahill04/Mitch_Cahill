@@ -272,7 +272,7 @@ function renderContact() {
         </a>
       `).join('')}
     </div>
-    <div class="contact-footer">© ${new Date().getFullYear()} ${p.name} &nbsp;·&nbsp; Built with care</div>
+    <div class="contact-footer">© ${new Date().getFullYear()} ${p.name}</div>
   `);
 }
 
