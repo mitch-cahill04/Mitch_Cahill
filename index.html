@@ -10,6 +10,29 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,700;0,9..144,800;0,9..144,900;1,9..144,700;1,9..144,800;1,9..144,900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    :root {
+      --navy: #0A1628;
+      --royal: #1B3A9E;
+      --gold: #D4A84B;
+      --cream: #F5F0E8;
+    }
+    .crest-divider {
+      text-align: center;
+      padding: 32px 0 8px;
+    }
+    .crest-divider img {
+      height: 80px;
+      opacity: 0.13;
+      display: inline-block;
+    }
+    .hero-crest {
+      display: block;
+      height: 90px;
+      margin-bottom: 18px;
+      opacity: 0.93;
+    }
+  </style>
 </head>
 <body>
 
@@ -70,6 +93,7 @@
       <div class="container hero-layout">
         <div class="hero-text">
           <div class="hero-eyebrow">
+            <img src="Crest.webp" alt="Cahill Crest" class="hero-crest">
             <span class="eyebrow-dot"></span>
             <span id="hero-eyebrow">NYU Stern School of Business</span>
           </div>
@@ -78,7 +102,7 @@
             <span class="name-line italic" id="hero-name-last">Cahill</span>
           </h1>
           <p class="hero-tagline" id="hero-tagline">
-            Equity research, venture analysis, and product strategy — at the intersection of finance and technology.
+            Equity research, venture capital, and product strategy: the intersection of finance and technology.
           </p>
           <div class="hero-actions">
             <a href="#experience" class="btn-hero-primary">Explore Work</a>
@@ -160,6 +184,11 @@
         <div id="skills-content"><!-- js --></div>
       </div>
     </section>
+
+    <!-- ── CREST DIVIDER ─────────────────────────── -->
+    <div class="crest-divider">
+      <img src="Crest.webp" alt="Cahill Crest">
+    </div>
 
     <!-- ── PUBLISHED WORKS ───────────────────────── -->
     <section id="works" class="section section-cream">

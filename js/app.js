@@ -260,6 +260,7 @@ function renderContact() {
   ].filter(Boolean);
 
   setHTML('contact-content', `
+    <img src="Crest.webp" alt="Cahill Crest" style="height:100px; opacity:0.88; display:block; margin: 0 auto 24px;">
     <div class="contact-eyebrow">Get In Touch</div>
     <h2 class="contact-heading">
       <span class="editable" data-field="personal.contactHeading">${p.contactHeading || "Let's Connect"}</span>
