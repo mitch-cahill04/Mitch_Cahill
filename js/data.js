@@ -241,7 +241,7 @@ const PORTFOLIO_DATA = {
       date:        "Apr 2026",
       type:        "Presentation",
       description: "Slide deck companion to the NHI cybersecurity industry report, presented to the Strategic Venture Society. Covers the evolution of the cybersecurity market, fragmentation analysis, regulatory tailwinds, and a platform investment thesis.",
-      url:         "SVS_Industry_Pitch-(3).pdf",
+      url:         "SVS-Industry-Pitch-(3).pdf",
     },
     {
       id:          "work-4",
