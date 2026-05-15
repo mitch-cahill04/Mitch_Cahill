@@ -241,7 +241,7 @@ const PORTFOLIO_DATA = {
       date:        "Apr 2026",
       type:        "Presentation",
       description: "Slide deck companion to the NHI cybersecurity industry report, presented to the Strategic Venture Society. Covers the evolution of the cybersecurity market, fragmentation analysis, regulatory tailwinds, and a platform investment thesis.",
-      url:         "",
+      url:         "SVS_Industry_Pitch-(3).pdf",
     },
     {
       id:          "work-4",
@@ -250,7 +250,7 @@ const PORTFOLIO_DATA = {
       date:        "Apr 2026",
       type:        "Research",
       description: "A long thesis on Okta (OKTA) at $64.09, arguing the market has mispriced the stock following a sector-wide AI panic selloff. Builds a three-case model (bear $76, base $111, bull $146) centered on Okta's April 30 AI agent product launch and machine identity opportunity.",
-      url:         "",
+      url:         "Long-Okta-Updated-(1).pdf",
     },
     {
       id:          "work-5",
@@ -259,7 +259,7 @@ const PORTFOLIO_DATA = {
       date:        "Apr 2026",
       type:        "Presentation",
       description: "An interactive financial dashboard built to visualize the Okta long thesis — including valuation scenarios, peer comparables, NRR trends, and free cash flow analysis.",
-      url:         "",
+      url:         "OKTA-Investment-Dashboard(17).html",
     },
     {
       id:          "work-6",
@@ -268,7 +268,7 @@ const PORTFOLIO_DATA = {
       date:        "Apr 2026",
       type:        "Pitch",
       description: "VC pitch on Openlayer (YC S21, $19.4M raised), arguing it is the only unified platform for AI evaluation, observability, and governance. Presented at the NYU Stern VC Pitch Competition with a buy recommendation at sub-$100M implied valuation.",
-      url:         "",
+      url:         "Openlayer_Pitch.pdf",
     },
     {
       id:          "work-7",
@@ -286,7 +286,7 @@ const PORTFOLIO_DATA = {
       date:        "Apr 2026",
       type:        "Presentation",
       description: "Data-driven analysis of 216,000+ US Open data points (2013–2023) using Python, Random Forest, and multivariate regression to determine how serve speed and serve metrics predict match outcomes. Random Forest model achieved 70.3% accuracy.",
-      url:         "",
+      url:         "Team-Pitch(2).pdf",
     },
     {
       id:          "work-9",
@@ -295,7 +295,7 @@ const PORTFOLIO_DATA = {
       date:        "Mar 2026",
       type:        "Pitch",
       description: "End-to-end product pitch proposing 'Hinge Plus One,' a new feature for Hinge designed to reduce first-date anxiety by enabling users to bring a friend. Includes user research, KPI definition, pain point analysis, MVP scoping, and A/B testing design. Presented to industry professionals.",
-      url:         "",
+      url:         "Mitch-(Hinge)-PMC-Final-(1).pdf",
     },
     {
       id:          "work-9",

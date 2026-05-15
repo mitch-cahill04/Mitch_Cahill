@@ -1,0 +1,2103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OKTA Investment Dashboard — Long Thesis</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+/* ── RESET & BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 72px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+body {
+  min-height: 100dvh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #e8eaed;
+  background: #0a0e27;
+}
+img, canvas, svg { display: block; max-width: 100%; height: auto; }
+table { border-collapse: collapse; width: 100%; }
+
+/* ── PALETTE VARIABLES ── */
+:root {
+  --bg: #0a0e27;
+  --card: #111637;
+  --card-alt: #0e1230;
+  --nav-bg: #080b1e;
+  --text: #e8eaed;
+  --text-muted: #a8b2d1;
+  --text-faint: #8892b0;
+  --accent: #00d4ff;
+  --accent2: #4a6cf7;
+  --green: #00c853;
+  --red: #ff5252;
+  --gold: #ffd700;
+  --border: #1e2350;
+  --radius: 10px;
+}
+
+/* ── NAVIGATION ── */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  height: 56px;
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 16px;
+  backdrop-filter: blur(12px);
+}
+.nav a {
+  color: var(--text-faint);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+  white-space: nowrap;
+}
+.nav a:hover { color: var(--accent); background: rgba(0,212,255,0.08); }
+
+/* ── LAYOUT ── */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+.section {
+  padding: 60px 0;
+  border-bottom: 1px solid var(--border);
+}
+.section:last-of-type { border-bottom: none; }
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.section-title {
+  font-size: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 32px;
+  line-height: 1.15;
+}
+
+/* ── CARDS ── */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 24px;
+}
+
+/* ── THESIS HEADER ── */
+.thesis-header { text-align: center; padding-top: 100px; }
+.ticker {
+  font-size: clamp(56px, 10vw, 72px);
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: -2px;
+  line-height: 1;
+}
+.price {
+  font-size: clamp(28px, 5vw, 40px);
+  font-weight: 300;
+  color: var(--text);
+  margin-top: 8px;
+}
+.targets-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+.target-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 20px 32px;
+  min-width: 160px;
+  text-align: center;
+}
+.target-card .label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.target-card .value {
+  font-size: 28px;
+  font-weight: 700;
+}
+.target-card .change { font-size: 14px; font-weight: 500; }
+.target-bear .label, .target-bear .value, .target-bear .change { color: var(--red); }
+.target-bear { border-top: 3px solid var(--red); }
+.target-base .label, .target-base .value, .target-base .change { color: var(--gold); }
+.target-base { border-top: 3px solid var(--gold); }
+.target-bull .label, .target-bull .value, .target-bull .change { color: var(--green); }
+.target-bull { border-top: 3px solid var(--green); }
+
+.thesis-text {
+  font-style: italic;
+  font-size: clamp(15px, 2vw, 17px);
+  color: var(--text-muted);
+  max-width: 800px;
+  margin: 32px auto 0;
+  line-height: 1.7;
+}
+
+/* ── COUNTDOWN ── */
+.countdown-wrap {
+  margin-top: 40px;
+  text-align: center;
+}
+.countdown-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 12px;
+}
+.countdown {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.countdown-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.countdown-num {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 70px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  text-align: center;
+  line-height: 1.2;
+}
+.countdown-sep {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 700;
+  color: var(--text-faint);
+  align-self: center;
+  padding-bottom: 20px;
+}
+.countdown-txt {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-top: 6px;
+}
+
+/* ── MARKET IS WRONG ── */
+.market-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 768px) { .market-grid { grid-template-columns: 1fr; } }
+.market-card {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 28px;
+}
+.market-card-bear {
+  background: #1a1020;
+  border-left: 4px solid var(--red);
+}
+.market-card-bull {
+  background: #101a20;
+  border-left: 4px solid var(--green);
+}
+.market-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+.market-card ul { list-style: none; }
+.market-card li {
+  font-size: 15px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+  line-height: 1.6;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.market-card li .icon {
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 15px;
+  margin-top: 2px;
+}
+
+/* ── STAT CARDS ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+@media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } }
+.stat-number {
+  font-size: clamp(28px, 4vw, 36px);
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1.2;
+}
+.stat-label {
+  font-size: 14px;
+  color: var(--text);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+.stat-source {
+  font-size: 12px;
+  color: var(--text-faint);
+  margin-top: 8px;
+  font-style: italic;
+}
+.featured-stat {
+  margin-top: 28px;
+  background: linear-gradient(135deg, #0d1433 0%, #111a42 50%, #0e1535 100%);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 36px 40px;
+  position: relative;
+  overflow: hidden;
+}
+.featured-stat::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent));
+}
+.featured-stat-inner {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.featured-stat-number {
+  font-size: clamp(48px, 7vw, 64px);
+  font-weight: 900;
+  color: var(--accent);
+  letter-spacing: -1px;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+.featured-stat-label {
+  font-size: 17px;
+  color: var(--text);
+  line-height: 1.7;
+}
+.featured-stat-source {
+  font-size: 12px;
+  color: var(--text-faint);
+  font-style: italic;
+  margin-top: 14px;
+}
+@media (max-width: 768px) {
+  .featured-stat { padding: 28px 20px; }
+}
+.stats-summary {
+  margin-top: 32px;
+  font-size: 16px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  max-width: 900px;
+}
+
+/* ── PRIMARY RESEARCH CARD ── */
+.primary-research {
+  margin-top: 36px;
+  background: linear-gradient(135deg, #0f1530 0%, #121938 100%);
+  border: 1px solid rgba(0,212,255,0.2);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 28px 32px;
+}
+.primary-research-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.primary-research-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(0,212,255,0.1);
+  border: 1px solid rgba(0,212,255,0.25);
+  border-radius: 4px;
+  padding: 3px 10px;
+}
+.primary-research-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+.primary-research-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.primary-research-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 18px;
+  position: relative;
+}
+.primary-research-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.primary-research-finding {
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.65;
+}
+.primary-research-validates {
+  font-size: 12px;
+  color: var(--accent);
+  font-style: italic;
+  opacity: 0.8;
+}
+.primary-research-source {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0,212,255,0.1);
+  font-size: 12px;
+  color: var(--text-faint);
+  font-style: italic;
+  line-height: 1.6;
+}
+@media (max-width: 768px) {
+  .primary-research { padding: 20px; }
+}
+
+/* ── TAM EXPANSION ── */
+.tam-expansion { margin-top: 28px; }
+.tam-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+@media (max-width: 768px) { .tam-grid { grid-template-columns: 1fr; } }
+.tam-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  text-align: center;
+}
+.tam-number {
+  font-size: clamp(32px, 5vw, 42px);
+  font-weight: 900;
+  color: var(--accent);
+  line-height: 1.1;
+}
+.tam-label {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 10px;
+  line-height: 1.5;
+}
+.tam-tag {
+  display: inline-block;
+  margin-top: 14px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+.tam-tag-current {
+  color: var(--text-faint);
+  background: rgba(136,146,176,0.1);
+  border: 1px solid rgba(136,146,176,0.2);
+}
+.tam-tag-missing {
+  color: var(--green);
+  background: rgba(0,200,83,0.1);
+  border: 1px solid rgba(0,200,83,0.25);
+}
+.tam-tag-expand {
+  color: var(--gold);
+  background: rgba(255,215,0,0.1);
+  border: 1px solid rgba(255,215,0,0.25);
+}
+.tam-caption {
+  margin-top: 24px;
+  font-size: 15px;
+  color: var(--accent);
+  font-weight: 500;
+  line-height: 1.65;
+}
+.tam-source {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+/* ── CEO QUOTE ── */
+.ceo-quote {
+  margin-top: 28px;
+  background: var(--card);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 32px 36px;
+}
+.ceo-quote-text {
+  font-size: clamp(18px, 2.5vw, 22px);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.7;
+  margin: 0;
+}
+.ceo-quote-attr {
+  font-size: 14px;
+  color: var(--accent);
+  font-style: normal;
+  font-weight: 600;
+  margin-top: 16px;
+  display: block;
+}
+@media (max-width: 768px) {
+  .ceo-quote { padding: 24px 20px; }
+}
+
+/* ── RESEARCH VS CONSENSUS ── */
+.research-vs-consensus {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 28px;
+}
+@media (max-width: 768px) { .research-vs-consensus { grid-template-columns: 1fr; } }
+.rvc-col {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 24px 28px;
+}
+.rvc-col-bear {
+  background: #1a1020;
+  border-left: 3px solid var(--red);
+}
+.rvc-col-bull {
+  background: #0d1a1a;
+  border-left: 3px solid var(--green);
+}
+.rvc-header {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.rvc-col ul { list-style: none; }
+.rvc-col li {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+  line-height: 1.6;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.rvc-col li:last-child { margin-bottom: 0; }
+.rvc-icon {
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 14px;
+  margin-top: 2px;
+}
+.rvc-col-bull li span:last-child { color: var(--text); }
+
+/* ── NHI CALCULATOR ── */
+.calc-section { text-align: center; }
+.calc-slider-wrap {
+  max-width: 600px;
+  margin: 0 auto 40px;
+}
+.calc-headcount-label {
+  font-size: 14px;
+  color: var(--text-faint);
+  margin-bottom: 8px;
+}
+.calc-headcount-value {
+  font-size: clamp(28px, 4vw, 36px);
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 16px;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+}
+.calc-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  outline: none;
+  cursor: pointer;
+}
+.calc-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0,212,255,0.4);
+  transition: box-shadow 0.2s;
+}
+.calc-slider::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 18px rgba(0,212,255,0.7);
+}
+.calc-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 10px rgba(0,212,255,0.4);
+}
+.calc-range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-top: 8px;
+}
+.calc-outputs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+@media (max-width: 768px) { .calc-outputs { grid-template-columns: 1fr; } }
+.calc-output-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 20px;
+  text-align: center;
+}
+.calc-output-num {
+  font-size: clamp(28px, 4vw, 38px);
+  font-weight: 800;
+  color: var(--accent);
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  line-height: 1.2;
+}
+.calc-output-card:nth-child(2) .calc-output-num { color: var(--red); }
+.calc-output-card:nth-child(3) .calc-output-num { color: var(--gold); }
+.calc-output-label {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 10px;
+  line-height: 1.5;
+}
+.calc-caption {
+  margin-top: 32px;
+  font-size: 16px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.calc-caption strong { color: var(--accent); }
+.calc-sources {
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+/* ── METRIC CARDS ── */
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 36px;
+}
+@media (max-width: 768px) { .metrics-row { grid-template-columns: repeat(2, 1fr); } }
+.metric-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+}
+.metric-value {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--accent);
+}
+.metric-label {
+  font-size: 13px;
+  color: var(--text-faint);
+  margin-top: 4px;
+}
+.metric-sub {
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-top: 2px;
+}
+
+/* ── CHART CONTAINERS ── */
+.chart-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  position: relative;
+}
+.chart-callout {
+  text-align: center;
+  font-size: 15px;
+  color: var(--accent);
+  font-weight: 500;
+  margin-top: 20px;
+}
+
+/* ── TABLES ── */
+.data-table {
+  width: 100%;
+  font-size: 14px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.data-table th {
+  background: var(--nav-bg);
+  color: var(--text-faint);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.data-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table .row-highlight {
+  background: #1a2555;
+  border-left: 3px solid var(--accent);
+}
+.data-table .row-median {
+  background: #161b3d;
+  font-style: italic;
+}
+
+/* ── MOAT TABLE ── */
+.moat-table td:nth-child(2) { color: var(--accent); }
+.moat-table td:nth-child(3) { color: var(--text-muted); }
+
+/* ── CALLOUT BOX ── */
+.callout {
+  background: var(--card);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 20px 24px;
+  margin-top: 28px;
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+/* ── RE-RATING COMPS ── */
+.rerate-card {
+  margin-top: 32px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+}
+.rerate-primary {
+  background: rgba(0,212,255,0.08);
+  border-left: 3px solid var(--accent);
+}
+.rerate-primary td { color: var(--accent); font-weight: 600; }
+.rerate-bear {
+  background: rgba(255,82,82,0.08);
+  border-left: 3px solid var(--red);
+}
+.rerate-bear td { color: var(--red); }
+.rerate-table td:first-child { font-weight: 600; }
+.rerate-table td:nth-child(4) { font-size: 13px; color: var(--text-muted); }
+.rerate-table td:nth-child(5) { white-space: nowrap; text-align: center; }
+.rerate-legend {
+  display: flex;
+  gap: 20px;
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--text-faint);
+}
+.rerate-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.rerate-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.rerate-caption {
+  margin-top: 16px;
+  font-size: 15px;
+  color: var(--accent);
+  font-weight: 500;
+  line-height: 1.65;
+}
+.rerate-sub {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* ── NRR COMP CARD ── */
+.nrr-comp-card {
+  margin-top: 32px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+}
+.nrr-comp-table td:first-child {
+  font-weight: 600;
+  color: var(--text);
+}
+.nrr-comp-table td:nth-child(2) {
+  white-space: nowrap;
+  color: var(--text-faint);
+}
+.nrr-comp-caption {
+  margin-top: 20px;
+  font-size: 15px;
+  color: var(--accent);
+  font-weight: 500;
+  line-height: 1.6;
+}
+.nrr-comp-source {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+/* ── EDGE VS CONSENSUS ── */
+.edge-card {
+  margin-top: 32px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+}
+.edge-header {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+.edge-table td:first-child {
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+.edge-table td:nth-child(2) {
+  color: var(--text-faint);
+}
+.edge-table .edge-ours {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* ── WHY NOW ── */
+.whynow-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+@media (max-width: 768px) { .whynow-grid { grid-template-columns: 1fr; } }
+.whynow-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.whynow-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.whynow-text {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+/* ── RISK BADGES ── */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.badge-high { background: rgba(255,82,82,0.15); color: var(--red); }
+.badge-medium { background: rgba(255,215,0,0.15); color: var(--gold); }
+.badge-low { background: rgba(0,200,83,0.15); color: var(--green); }
+.badge-moderate { background: rgba(255,165,0,0.15); color: #ffa500; }
+
+/* ── TIMELINE ── */
+.timeline {
+  position: relative;
+  padding: 20px 0 50px;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+.timeline-track {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  min-width: 900px;
+  padding: 0 20px;
+}
+.timeline-track::before {
+  content: '';
+  position: absolute;
+  top: 50px;
+  left: 40px;
+  right: 40px;
+  height: 2px;
+  background: var(--border);
+}
+.timeline-node {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+.timeline-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent2);
+  border: 3px solid var(--bg);
+  margin-top: 42px;
+  margin-bottom: 12px;
+  position: relative;
+}
+.timeline-dot.highlight {
+  width: 24px;
+  height: 24px;
+  background: var(--accent);
+  margin-top: 38px;
+  box-shadow: 0 0 16px rgba(0,212,255,0.5), 0 0 40px rgba(0,212,255,0.25);
+  animation: pulse-glow 2.2s ease-in-out infinite;
+}
+.timeline-dot.highlight::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,212,255,0.35);
+  transform: translate(-50%, -50%);
+  animation: ring-expand 2.2s ease-in-out infinite;
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 16px rgba(0,212,255,0.5), 0 0 40px rgba(0,212,255,0.25); transform: scale(1); }
+  50% { box-shadow: 0 0 28px rgba(0,212,255,0.8), 0 0 64px rgba(0,212,255,0.35); transform: scale(1.1); }
+}
+@keyframes ring-expand {
+  0%, 100% { width: 44px; height: 44px; opacity: 0.5; border-color: rgba(0,212,255,0.35); }
+  50% { width: 56px; height: 56px; opacity: 0.15; border-color: rgba(0,212,255,0.15); }
+}
+
+/* "You are here" label on current date node */
+.timeline-node.current-node { position: relative; }
+.you-are-here {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  white-space: nowrap;
+  z-index: 2;
+}
+.you-are-here-text {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: rgba(255,215,0,0.1);
+  border: 1px solid rgba(255,215,0,0.3);
+  border-radius: 4px;
+  padding: 3px 8px;
+}
+.you-are-here-arrow {
+  font-size: 14px;
+  color: var(--accent);
+  animation: point-right 1.2s ease-in-out infinite;
+}
+@keyframes point-right {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(5px); }
+}
+.timeline-date {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+}
+.timeline-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  max-width: 170px;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+.timeline-node.highlight-node .timeline-date { color: var(--accent); font-size: 14px; }
+.timeline-node.highlight-node .timeline-desc { color: var(--text); font-weight: 500; }
+
+/* ── CONCLUSION ── */
+.conclusion-card {
+  background: linear-gradient(135deg, #131940 0%, #111637 50%, #0e1230 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 40px;
+}
+.conclusion-title {
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 28px;
+}
+.conclusion-points { list-style: none; }
+.conclusion-points li {
+  font-size: 16px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  line-height: 1.6;
+}
+.conclusion-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 7px;
+}
+.final-line {
+  font-size: clamp(20px, 3vw, 28px);
+  font-weight: 700;
+  color: var(--accent);
+  text-align: center;
+  margin-top: 36px;
+  line-height: 1.4;
+}
+
+/* ── FOOTER ── */
+.footer {
+  padding: 40px 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-faint);
+  line-height: 1.8;
+  border-top: 1px solid var(--border);
+}
+
+/* ── MOBILE TIMELINE ── */
+@media (max-width: 900px) {
+  .timeline-track {
+    flex-direction: column;
+    min-width: auto;
+    align-items: flex-start;
+    gap: 24px;
+    padding: 0;
+  }
+  .timeline-track::before {
+    top: 0;
+    bottom: 0;
+    left: 10px;
+    right: auto;
+    width: 2px;
+    height: auto;
+  }
+  .timeline-node {
+    flex-direction: row;
+    text-align: left;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .timeline-dot, .timeline-dot.highlight {
+    margin-top: 4px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+  .timeline-desc { max-width: none; }
+  .timeline-content { display: flex; flex-direction: column; }
+}
+
+/* ── NAV MOBILE ── */
+@media (max-width: 768px) {
+  .nav { gap: 2px; padding: 0 8px; overflow-x: auto; justify-content: flex-start; }
+  .nav a { font-size: 11px; padding: 6px 8px; }
+  .targets-row { gap: 10px; }
+  .target-card { padding: 16px 20px; min-width: 130px; }
+  .container { padding: 0 16px; }
+  .section { padding: 40px 0; }
+  .conclusion-card { padding: 28px; }
+}
+
+/* ── VALUATION TABLE RESPONSIVE ── */
+.table-scroll { overflow-x: auto; }
+
+/* ── RISK TABLE ── */
+.risk-table td { font-size: 13px; }
+.risk-table td:first-child { font-weight: 600; color: var(--text); }
+.risk-table td:last-child { color: var(--text-muted); font-size: 12px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════ NAVIGATION ═══════ -->
+<nav class="nav" role="navigation" aria-label="Main">
+  <a href="#thesis">Thesis</a>
+  <a href="#market">Market</a>
+  <a href="#opportunity">Opportunity</a>
+  <a href="#calculator">Calculator</a>
+  <a href="#financials">Financials</a>
+  <a href="#valuation">Valuation</a>
+  <a href="#moat">Moat</a>
+  <a href="#risks">Risks</a>
+  <a href="#catalysts">Catalysts</a>
+  <a href="#conclusion">Conclusion</a>
+</nav>
+
+<!-- ═══════ SECTION 1: THESIS HEADER ═══════ -->
+<section id="thesis" class="section thesis-header">
+  <div class="container">
+    <div class="ticker">OKTA</div>
+    <div class="price">$64.09</div>
+
+    <div class="targets-row">
+      <div class="target-card target-bear">
+        <div class="label">Bear</div>
+        <div class="value">$76</div>
+        <div class="change">+19%</div>
+      </div>
+      <div class="target-card target-base">
+        <div class="label">Base</div>
+        <div class="value">$111</div>
+        <div class="change">+73%</div>
+      </div>
+      <div class="target-card target-bull">
+        <div class="label">Bull</div>
+        <div class="value">$146</div>
+        <div class="change">+128%</div>
+      </div>
+    </div>
+
+    <p class="thesis-text">
+      "The market prices Okta as a maturing identity vendor — we see the only neutral identity infrastructure platform for the AI agent economy, trading at a trough multiple 22 days before its most important product launch ever."
+    </p>
+
+    <div class="countdown-wrap">
+      <div class="countdown-label">Okta for AI Agents GA — April 30, 2026</div>
+      <div class="countdown" id="countdown" aria-live="polite">
+        <div class="countdown-unit">
+          <span class="countdown-num" id="cd-days">--</span>
+          <span class="countdown-txt">Days</span>
+        </div>
+        <span class="countdown-sep">:</span>
+        <div class="countdown-unit">
+          <span class="countdown-num" id="cd-hours">--</span>
+          <span class="countdown-txt">Hours</span>
+        </div>
+        <span class="countdown-sep">:</span>
+        <div class="countdown-unit">
+          <span class="countdown-num" id="cd-min">--</span>
+          <span class="countdown-txt">Minutes</span>
+        </div>
+        <span class="countdown-sep">:</span>
+        <div class="countdown-unit">
+          <span class="countdown-num" id="cd-sec">--</span>
+          <span class="countdown-txt">Seconds</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 2: THE MARKET IS WRONG ═══════ -->
+<section id="market" class="section">
+  <div class="container">
+    <div class="section-label">Contrarian View</div>
+    <h2 class="section-title">The Market Is Wrong</h2>
+    <div class="market-grid">
+      <div class="market-card market-card-bear">
+        <h3 style="color: var(--red);">What the market thinks</h3>
+        <ul>
+          <li><span class="icon" style="color:var(--red);">✕</span> <span>9% growth means the business is maturing</span></li>
+          <li><span class="icon" style="color:var(--red);">✕</span> <span>Microsoft will bundle Okta out of existence</span></li>
+          <li><span class="icon" style="color:var(--red);">✕</span> <span>NRR at 106% shows the expansion engine is broken</span></li>
+        </ul>
+      </div>
+      <div class="market-card market-card-bull">
+        <h3 style="color: var(--green);">What the data shows</h3>
+        <ul>
+          <li><span class="icon" style="color:var(--green);">✓</span> <span>Subscription revenue growing 10%, RPO growing 15% — the headline understates momentum</span></li>
+          <li><span class="icon" style="color:var(--green);">✓</span> <span>Okta crossed $1B in cumulative AWS Marketplace TCV — enterprises choose to pay for Okta through the very cloud provider whose identity product could replace them</span></li>
+          <li><span class="icon" style="color:var(--green);">✓</span> <span>New products drove 30% of Q4 bookings at 40% higher ACV — the expansion engine is just starting</span></li>
+          <li><span class="icon" style="color:var(--green);">✓</span> <span>The April drop was sector-wide AI panic and macro tariff selling — zero Okta-specific news between April 2 and April 15. The stock now trades below our own bear case. Our bear case assumes everything goes wrong. Nothing has gone wrong.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 3: THE OPPORTUNITY ═══════ -->
+<section id="opportunity" class="section">
+  <div class="container">
+    <div class="section-label">TAM Expansion</div>
+    <h2 class="section-title">The Opportunity</h2>
+    <div class="stats-grid">
+      <div class="card">
+        <div class="stat-number">91% vs 10%</div>
+        <div class="stat-label">of organizations use AI agents — only 10% have a governance strategy</div>
+        <div class="stat-source">Okta AI at Work 2025</div>
+      </div>
+      <div class="card">
+        <div class="stat-number">144:1</div>
+        <div class="stat-label">Non-human to human identity ratio in enterprise environments</div>
+        <div class="stat-source">Entro Labs H1 2025</div>
+      </div>
+      <div class="card">
+        <div class="stat-number">88%</div>
+        <div class="stat-label">of organizations experienced AI agent security incidents in the past year</div>
+        <div class="stat-source">Gravitee State of AI Agent Security 2026</div>
+      </div>
+      <div class="card">
+        <div class="stat-number">April 30</div>
+        <div class="stat-label">Okta for AI Agents goes GA — 'most crucial product ever' per CEO Todd McKinnon</div>
+        <div class="stat-source">Okta Showcase 2026</div>
+      </div>
+    </div>
+
+    <div class="featured-stat">
+      <div class="featured-stat-inner">
+        <div class="featured-stat-number">$96B</div>
+        <div class="featured-stat-label">Total cybersecurity M&amp;A deal value in 2025, a <span style="color:var(--green);font-weight:700;">270% increase</span> year over year. Identity &amp; Access Management was one of the top three consolidation categories.</div>
+        <div class="featured-stat-source">Momentum Cyber Cybersecurity Almanac, January 2026 — the only investment bank exclusively focused on cybersecurity</div>
+      </div>
+    </div>
+    <p class="stats-summary">
+      The governance gap between 91% adoption and 10% governance is Okta's total addressable market expansion. Every AI agent is a new identity. Okta is the only neutral platform built to govern all of them.
+    </p>
+
+    <div class="primary-research">
+      <div class="primary-research-header">
+        <span class="primary-research-badge">Primary Research</span>
+        <span class="primary-research-title">Identity Security Practitioner Interview</span>
+      </div>
+      <ul class="primary-research-list">
+        <li>
+          <span class="primary-research-finding">Machine identity is already a top enterprise security priority, not a roadmap item. Demand for AI agent governance is present now.</span>
+          <span class="primary-research-validates">Validates: the market opportunity is immediate, not theoretical</span>
+        </li>
+        <li>
+          <span class="primary-research-finding">The future of identity security will be built from the application layer, not the infrastructure layer &mdash; the cloud-native, SaaS-integrated world where Okta has a seven-year head start.</span>
+          <span class="primary-research-validates">Validates: Okta&rsquo;s architectural advantage over Microsoft and on-prem vendors</span>
+        </li>
+        <li>
+          <span class="primary-research-finding">Enterprise identity adoption is being driven by regulatory pressure including NYDFS cybersecurity requirements, creating mandatory demand independent of discretionary IT budgets &mdash; particularly in financial services, one of Okta&rsquo;s core verticals.</span>
+        </li>
+        <li>
+          <span class="primary-research-finding">Okta for AI Agents launching April 30 was independently described as a must &mdash; not a product feature, a market requirement.</span>
+        </li>
+      </ul>
+      <div class="primary-research-source">
+        Source: Primary research conducted with an identity security professional with direct operating experience at leading NHI and machine identity security firms. Interview conducted April 2026.
+      </div>
+    </div>
+
+    <blockquote class="ceo-quote">
+      <p class="ceo-quote-text">&ldquo;They had an absolutely incredible quarter considering Okta for AI Agents is not even generally available yet.&rdquo;</p>
+      <footer class="ceo-quote-attr">&mdash; Todd McKinnon, CEO, Q4 FY2026 Earnings Call</footer>
+    </blockquote>
+
+    <div class="tam-expansion">
+      <div class="tam-grid">
+        <div class="tam-card">
+          <div class="tam-number">$20.5B</div>
+          <div class="tam-label">Traditional IAM market today &mdash; Okta has 15% share</div>
+          <div class="tam-tag tam-tag-current">What the market is pricing</div>
+        </div>
+        <div class="tam-card">
+          <div class="tam-number" style="color:var(--green);">+$15B</div>
+          <div class="tam-label">Incremental NHI and AI agent identity TAM by 2028</div>
+          <div class="tam-tag tam-tag-missing">What the market is missing</div>
+        </div>
+        <div class="tam-card">
+          <div class="tam-number" style="color:var(--gold);">76%</div>
+          <div class="tam-label">of organizations not using their existing IAM for agent authorization &mdash; upsell opportunity within Okta&rsquo;s current base</div>
+          <div class="tam-tag tam-tag-expand">The expansion opportunity inside the installed base</div>
+        </div>
+      </div>
+      <p class="tam-caption">The market prices Okta against a mature $20B TAM. The actual TAM is expanding by $15B through AI agent identity &mdash; and Okta is the only vendor at GA scale as of April 30.</p>
+      <p class="tam-source">Sources: Gartner 4Q25 IAM Forecast, MarketsandMarkets NHI Access Management, Gravitee State of AI Agent Security 2026</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════ SECTION 3.5: NHI RISK CALCULATOR ═══════ -->
+<section id="calculator" class="section calc-section">
+  <div class="container">
+    <div class="section-label">Interactive Model</div>
+    <h2 class="section-title">NHI Risk Calculator</h2>
+
+    <div class="calc-slider-wrap">
+      <div class="calc-headcount-label">Company Headcount</div>
+      <div class="calc-headcount-value" id="calc-hc-display">10,000</div>
+      <input type="range" class="calc-slider" id="calc-slider" min="100" max="100000" value="10000" step="100">
+      <div class="calc-range-labels">
+        <span>100</span>
+        <span>25,000</span>
+        <span>50,000</span>
+        <span>75,000</span>
+        <span>100,000</span>
+      </div>
+    </div>
+
+    <div class="calc-outputs">
+      <div class="calc-output-card">
+        <div class="calc-output-num" id="calc-nhi">820,000</div>
+        <div class="calc-output-label">Estimated non-human identities in your environment</div>
+      </div>
+      <div class="calc-output-card">
+        <div class="calc-output-num" id="calc-risk">721,600</div>
+        <div class="calc-output-label">Identities likely exposed based on 88% incident rate</div>
+      </div>
+      <div class="calc-output-card">
+        <div class="calc-output-num" id="calc-ungov">639,600</div>
+        <div class="calc-output-label">Identities with no formal governance strategy</div>
+      </div>
+    </div>
+
+    <p class="calc-caption">
+      <strong>This is the market Okta for AI Agents addresses.</strong> General availability: April 30, 2026.
+    </p>
+    <p class="calc-sources">
+      Sources: 82:1 NHI ratio — CyberArk 2025 Identity Security Landscape &amp; Entro Labs H1 2025 &nbsp;|&nbsp; 88% incident rate — Gravitee State of AI Agent Security 2026 &nbsp;|&nbsp; 78% ungoverned — derived from Gravitee (only 21.9% treat agents as identity-bearing entities)
+    </p>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 4: FINANCIAL SNAPSHOT ═══════ -->
+<section id="financials" class="section">
+  <div class="container">
+    <div class="section-label">Fundamentals</div>
+    <h2 class="section-title">Financial Snapshot</h2>
+    <div class="metrics-row">
+      <div class="metric-card">
+        <div class="metric-value">11%</div>
+        <div class="metric-label">Revenue Growth</div>
+        <div class="metric-sub">YoY Q4 FY26</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">82%</div>
+        <div class="metric-label">Gross Margin</div>
+        <div class="metric-sub">Non-GAAP adj.</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">29%</div>
+        <div class="metric-label">FCF Margin</div>
+        <div class="metric-sub">LTM</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">15%</div>
+        <div class="metric-label">RPO Growth</div>
+        <div class="metric-sub">YoY backlog</div>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <canvas id="revenueChart" height="320"></canvas>
+    </div>
+    <div class="chart-callout">EPS beat consensus every quarter in FY2026</div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 5: VALUATION ═══════ -->
+<section id="valuation" class="section">
+  <div class="container">
+    <div class="section-label">Peer Comparison</div>
+    <h2 class="section-title">Valuation</h2>
+
+    <div class="rerate-card">
+      <h3 class="edge-header">Software Re-Rating Comps</h3>
+      <div class="table-scroll">
+        <table class="data-table rerate-table">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Trough Multiple</th>
+              <th>Re-rated Multiple</th>
+              <th>Catalyst</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="rerate-primary">
+              <td><strong>PANW</strong></td>
+              <td>4.5x</td>
+              <td>12x</td>
+              <td>Platform bundling driving multi-product adoption</td>
+              <td>18 mo</td>
+            </tr>
+            <tr>
+              <td>Confluent</td>
+              <td>3.5x</td>
+              <td>8x</td>
+              <td>AI workloads creating new TAM</td>
+              <td>12 mo</td>
+            </tr>
+            <tr>
+              <td>Elastic</td>
+              <td>3x</td>
+              <td>7x</td>
+              <td>Core technology became AI infrastructure</td>
+              <td>6 mo</td>
+            </tr>
+            <tr>
+              <td>SailPoint</td>
+              <td>3x</td>
+              <td>11x</td>
+              <td>Identity governance secular demand recognized</td>
+              <td>24 mo</td>
+            </tr>
+            <tr class="rerate-bear">
+              <td><strong>Twilio</strong></td>
+              <td>2.5x</td>
+              <td>4.5x</td>
+              <td>Profitability only &mdash; no second-act product</td>
+              <td>18 mo</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="rerate-legend">
+        <span class="rerate-legend-item"><span class="rerate-dot" style="background:var(--accent);"></span> Primary analog</span>
+        <span class="rerate-legend-item"><span class="rerate-dot" style="background:var(--red);"></span> Bear case analog</span>
+      </div>
+      <p class="rerate-caption">Rule of 40 companies do not stay at 3.5x. They re-rate on a catalyst or get taken private. The only exception is Twilio &mdash; which had no credible second-act product. Okta&rsquo;s launches in 22 days.</p>
+      <p class="rerate-sub">Primary analog PANW re-rated from 4.5x to 12x on the same platform catalyst thesis. Our base case assumes only 5.5x.</p>
+    </div>
+
+    <div class="edge-card">
+      <h3 class="edge-header">Where We Diverge from Wall Street</h3>
+      <table class="data-table edge-table">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>Wall Street Consensus</th>
+            <th>Our Thesis</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Price target</td>
+            <td>Street median: $100</td>
+            <td class="edge-ours">Base case: $111 &mdash; we assign value to AI agent pipeline visibility that consensus excludes from models</td>
+          </tr>
+          <tr>
+            <td>Timing</td>
+            <td>Wait for AI revenue visibility</td>
+            <td class="edge-ours">Buy before April 30 GA &mdash; the stock re-rates on cRPO, not revenue recognition</td>
+          </tr>
+          <tr>
+            <td>Downside</td>
+            <td>Only sell-rated analyst: $75 (BofA)</td>
+            <td class="edge-ours">Our bear case: $76 &mdash; the maximum downside is already in the price</td>
+          </tr>
+          <tr>
+            <td>Differentiated view</td>
+            <td>Only post-Q4 upgrade: BMO Capital &rarr; Outperform</td>
+            <td class="edge-ours">Their thesis matches ours &mdash; the 9% guide is conservative and new products are underappreciated</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="nrr-comp-card">
+      <h3 class="edge-header">Historical NRR Re-Rating Pattern</h3>
+      <table class="data-table nrr-comp-table">
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>NRR Compression</th>
+            <th>What Happened</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Datadog</td>
+            <td>130% &rarr; 110%</td>
+            <td>Stock rallied <span style="color:var(--green);font-weight:700;">+62%</span> from trough when AI observability pipeline became visible &mdash; before NRR recovered</td>
+          </tr>
+          <tr>
+            <td>Cloudflare</td>
+            <td>127% &rarr; 110%</td>
+            <td>Stock rallied <span style="color:var(--green);font-weight:700;">+46%</span> when Zero Trust and Workers AI products hit scale</td>
+          </tr>
+          <tr class="row-highlight">
+            <td><strong>Okta today</strong></td>
+            <td>124% &rarr; 106%</td>
+            <td>New products 30% of bookings, 40% ACV uplift. <span style="color:var(--accent);font-weight:700;">April 30 GA is the forward indicator moment</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="nrr-comp-caption">
+        Historical pattern: stocks re-rate when new product pipeline becomes visible, not when NRR actually recovers. April 30 is that moment for Okta.
+      </p>
+      <p class="nrr-comp-source">Source: Blossom Street Ventures NRR Database, company filings</p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Ticker</th>
+            <th>EV / NTM Rev</th>
+            <th>Rule of 40</th>
+            <th>Gross Margin</th>
+            <th>NHI Product Readiness</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight">
+            <td><strong>OKTA</strong></td>
+            <td>3.5x</td>
+            <td>39</td>
+            <td>82%</td>
+            <td><span style="color:var(--green);font-weight:700;">GA April 30, 2026</span></td>
+          </tr>
+          <tr>
+            <td>CRWD</td>
+            <td>16.2x</td>
+            <td>49</td>
+            <td>79%</td>
+            <td style="color:var(--text-faint);">Partial / Identity security overlay</td>
+          </tr>
+          <tr>
+            <td>PANW</td>
+            <td>7.8x</td>
+            <td>56</td>
+            <td>74%</td>
+            <td style="color:var(--text-faint);">Preview via CyberArk acquisition</td>
+          </tr>
+          <tr>
+            <td>CYBR</td>
+            <td>11.4x</td>
+            <td>43</td>
+            <td>85%</td>
+            <td style="color:var(--text-faint);">Legacy PAM only</td>
+          </tr>
+          <tr>
+            <td>S</td>
+            <td>3.2x</td>
+            <td>28</td>
+            <td>79%</td>
+            <td style="color:var(--text-faint);">None</td>
+          </tr>
+          <tr class="row-median">
+            <td>Peer Median</td>
+            <td>9.6x</td>
+            <td>46</td>
+            <td>79%</td>
+            <td style="color:var(--text-faint);font-style:italic;">No peer at GA</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="margin-top:20px; font-size:14px; color:var(--text-faint); line-height:1.7;">
+      Okta's discount to peer median reflects 9.5% NTM growth vs. peer median of 20% &mdash; the re-rating catalyst is AI agent products hitting cRPO in FY27, narrowing the growth gap and justifying multiple expansion toward 5.5x.
+    </p>
+
+    <div class="chart-wrap" style="margin-top:32px;">
+      <canvas id="valuationChart" height="220"></canvas>
+    </div>
+
+    <p style="margin-top:24px; font-size:15px; color:var(--text-muted); line-height:1.7;">
+      Okta deserves a discount to peers today &mdash; 9.5% NTM growth vs. peer median of 20%. The catalyst that closes the gap is AI agent monetization becoming visible in FY27 cRPO.
+    </p>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 6: COMPETITIVE MOAT ═══════ -->
+<section id="moat" class="section">
+  <div class="container">
+    <div class="section-label">Defensibility</div>
+    <h2 class="section-title">Competitive Moat</h2>
+
+    <div class="table-scroll">
+      <table class="data-table moat-table">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>Okta</th>
+            <th>Microsoft Entra ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Multi-cloud parity</td>
+            <td>Equal depth across AWS, Azure, GCP</td>
+            <td>Best in Azure; limited depth in AWS/GCP</td>
+          </tr>
+          <tr>
+            <td>AI agent identity</td>
+            <td>GA April 30, 2026 — agent discovery, governance, kill switch</td>
+            <td>Preview only — no production SLA</td>
+          </tr>
+          <tr>
+            <td>Integrations</td>
+            <td>7,000+ pre-built (OIN)</td>
+            <td>3,500+ (best for Microsoft apps)</td>
+          </tr>
+          <tr>
+            <td>Vendor neutrality</td>
+            <td>Independent — no ecosystem lock-in</td>
+            <td>Bundled with M365</td>
+          </tr>
+          <tr>
+            <td>Gartner MQ</td>
+            <td>Leader — 9 consecutive years</td>
+            <td>Leader — 9 consecutive years</td>
+          </tr>
+          <tr>
+            <td>AWS Marketplace TCV</td>
+            <td>$1B+ cumulative</td>
+            <td>N/A</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      The bear case assumes Microsoft wins. The data says otherwise — Okta crossed $1B in AWS Marketplace TCV. Enterprises are actively choosing to pay for Okta through the very cloud provider whose identity product could replace them.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 6.5: WHY NOW ═══════ -->
+<section id="whynow" class="section">
+  <div class="container">
+    <div class="section-label">Timing</div>
+    <h2 class="section-title">Why Now</h2>
+    <div class="whynow-grid">
+      <div class="whynow-card">
+        <div class="whynow-icon" style="color:var(--red);">&#9660;</div>
+        <div class="whynow-text">Stock trades below our bear case of $76 — not because anything changed about the business, but because a sector-wide AI panic and macro selloff pushed a low-multiple name below fundamental value. At $64.09 the market prices Okta worse than our worst case scenario. That is the opportunity.</div>
+      </div>
+      <div class="whynow-card">
+        <div class="whynow-icon" style="color:var(--accent);">&#9200;</div>
+        <div class="whynow-text">The catalyst is 22 days away. April 30, Okta for AI Agents goes GA.</div>
+      </div>
+      <div class="whynow-card">
+        <div class="whynow-icon" style="color:var(--green);">&#9878;</div>
+        <div class="whynow-text">Competitive landscape shifting in Okta&rsquo;s favor &mdash; CyberArk&rsquo;s independence ending via Palo Alto acquisition, removing the most credible pure-play PAM competitor just as Okta enters that market.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 7: RISK MATRIX ═══════ -->
+<section id="risks" class="section">
+  <div class="container">
+    <div class="section-label">Risk Management</div>
+    <h2 class="section-title">Risk Matrix</h2>
+
+    <div class="table-scroll">
+      <table class="data-table risk-table">
+        <thead>
+          <tr>
+            <th>Risk</th>
+            <th>Severity</th>
+            <th>Probability</th>
+            <th>Mitigant</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Microsoft Entra bundling</td>
+            <td><span class="badge badge-high">High</span></td>
+            <td><span class="badge badge-low">Low (enterprise)</span></td>
+            <td>$1B AWS Marketplace TCV; 7,000+ integrations; field checks show Microsoft "fading"</td>
+          </tr>
+          <tr>
+            <td>Growth deceleration below 9%</td>
+            <td><span class="badge badge-high">High</span></td>
+            <td><span class="badge badge-moderate">Moderate</span></td>
+            <td>Subscription revenue 10%, RPO 15%, capacity additions underway</td>
+          </tr>
+          <tr>
+            <td>NRR decline below 100%</td>
+            <td><span class="badge badge-medium">Medium</span></td>
+            <td><span class="badge badge-low">Low</span></td>
+            <td>Gross retention intact; 30% new product bookings; no competitive displacement</td>
+          </tr>
+          <tr>
+            <td>CrowdStrike/CyberArk competition</td>
+            <td><span class="badge badge-medium">Medium</span></td>
+            <td><span class="badge badge-moderate">Moderate</span></td>
+            <td>Infrastructure vs. security distinction — Okta governs 45B auth events/month</td>
+          </tr>
+          <tr>
+            <td>AI reduces identity need</td>
+            <td><span class="badge badge-medium">Medium</span></td>
+            <td><span class="badge badge-low">Low (near-term)</span></td>
+            <td>AI expands NHI surface 144:1 — more identities to govern, not fewer</td>
+          </tr>
+          <tr>
+            <td>Multiple compression to 2.5x</td>
+            <td><span class="badge badge-medium">Medium</span></td>
+            <td><span class="badge badge-moderate">Moderate (if growth stays 9%)</span></td>
+            <td>$800M+ FCF annually; Rule of 40 achieved; $1B buyback creates floor</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 8: CATALYST TIMELINE ═══════ -->
+<section id="catalysts" class="section">
+  <div class="container">
+    <div class="section-label">Catalyst Calendar</div>
+    <h2 class="section-title">Catalyst Timeline</h2>
+
+    <div class="timeline">
+      <div class="timeline-track">
+        <div class="timeline-node">
+          <div class="timeline-content">
+            <div class="timeline-date">Mar 2026</div>
+          </div>
+          <div class="timeline-dot"></div>
+          <div class="timeline-desc">Q4 FY26 earnings — beat by 5¢, new products 30% of bookings</div>
+        </div>
+        <div class="timeline-node current-node">
+          <div class="timeline-content">
+            <div class="timeline-date">Apr 8</div>
+          </div>
+          <div class="timeline-dot" style="background:var(--gold);border-color:var(--bg);"></div>
+          <div class="timeline-desc">Pitch submitted — $64.09 / 3.5x NTM</div>
+          <div class="you-are-here">
+            <span class="you-are-here-text">You are here</span>
+            <span class="you-are-here-arrow">→</span>
+          </div>
+        </div>
+        <div class="timeline-node highlight-node">
+          <div class="timeline-content">
+            <div class="timeline-date">Apr 30</div>
+          </div>
+          <div class="timeline-dot highlight"></div>
+          <div class="timeline-desc">Okta for AI Agents GA — 'most crucial product ever'</div>
+        </div>
+        <div class="timeline-node">
+          <div class="timeline-content">
+            <div class="timeline-date">FY2027</div>
+          </div>
+          <div class="timeline-dot"></div>
+          <div class="timeline-desc">AI agent pipeline converts to cRPO — re-rating catalyst becomes visible</div>
+        </div>
+        <div class="timeline-node">
+          <div class="timeline-content">
+            <div class="timeline-date">FY2028-29</div>
+          </div>
+          <div class="timeline-dot"></div>
+          <div class="timeline-desc">AI agent revenue hits P&amp;L — growth re-accelerates toward 15%+</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SECTION 9: INVESTMENT CONCLUSION ═══════ -->
+<section id="conclusion" class="section" style="border-bottom:none;">
+  <div class="container">
+    <div class="conclusion-card">
+      <div class="conclusion-title">Long OKTA at $64.09</div>
+      <ul class="conclusion-points">
+        <li>
+          <span class="conclusion-dot" style="background:var(--green);"></span>
+          <span><strong>Limited downside:</strong> bear case $76 (+19%) — FCF and buyback create a floor at current multiple</span>
+        </li>
+        <li>
+          <span class="conclusion-dot" style="background:var(--gold);"></span>
+          <span><strong>Asymmetric upside:</strong> base case $111 (+73%) as AI agent products re-rate the stock from trough identity vendor to AI infrastructure platform</span>
+        </li>
+        <li>
+          <span class="conclusion-dot" style="background:var(--accent);"></span>
+          <span><strong>The catalyst is days away:</strong> April 30, Okta for AI Agents GA — buying before the event, not after</span>
+        </li>
+      </ul>
+      <div class="final-line">The market is pricing the past. We are pricing the future.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ FOOTER ═══════ -->
+<footer class="footer">
+  <div class="container">
+    Research prepared for Perplexity Computer Stock Pitch Competition &nbsp;|&nbsp; Data as of April 7, 2026<br>
+    Sources: Okta SEC filings, Momentum Cyber Cybersecurity Almanac (Jan 2026), Gartner, Gravitee, Entro Labs, CyberArk, Okta AI at Work 2025
+  </div>
+</footer>
+
+<!-- ═══════ SCRIPTS ═══════ -->
+<script>
+// ── COUNTDOWN TIMER ──
+(function() {
+  // April 30, 2026 00:00:00 EST = UTC-4 → April 30 04:00:00 UTC
+  const target = new Date('2026-04-30T04:00:00Z').getTime();
+
+  function update() {
+    const now = Date.now();
+    let diff = target - now;
+    if (diff < 0) diff = 0;
+
+    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+    document.getElementById('cd-days').textContent = String(d).padStart(2, '0');
+    document.getElementById('cd-hours').textContent = String(h).padStart(2, '0');
+    document.getElementById('cd-min').textContent = String(m).padStart(2, '0');
+    document.getElementById('cd-sec').textContent = String(s).padStart(2, '0');
+  }
+
+  update();
+  setInterval(update, 1000);
+})();
+
+// ── NHI CALCULATOR ──
+(function() {
+  const slider = document.getElementById('calc-slider');
+  const hcDisplay = document.getElementById('calc-hc-display');
+  const nhiDisplay = document.getElementById('calc-nhi');
+  const riskDisplay = document.getElementById('calc-risk');
+  const ungovDisplay = document.getElementById('calc-ungov');
+
+  function fmt(n) {
+    return n.toLocaleString('en-US');
+  }
+
+  function calculate() {
+    const hc = parseInt(slider.value, 10);
+    const nhi = hc * 82;
+    const risk = Math.round(nhi * 0.88);
+    const ungov = Math.round(nhi * 0.78);
+
+    hcDisplay.textContent = fmt(hc);
+    nhiDisplay.textContent = fmt(nhi);
+    riskDisplay.textContent = fmt(risk);
+    ungovDisplay.textContent = fmt(ungov);
+  }
+
+  slider.addEventListener('input', calculate);
+  calculate();
+})();
+
+// ── CHART DEFAULTS ──
+Chart.defaults.color = '#8892b0';
+Chart.defaults.borderColor = '#1e2350';
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+
+// ── REVENUE CHART ──
+(function() {
+  const ctx = document.getElementById('revenueChart').getContext('2d');
+  const revenue = [688, 728, 742, 761];
+  const beats = ['+$0.09', '+$0.07', '+$0.07', '+$0.05'];
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Q1 FY26', 'Q2 FY26', 'Q3 FY26', 'Q4 FY26'],
+      datasets: [{
+        label: 'Revenue ($M)',
+        data: revenue,
+        backgroundColor: '#4a6cf7',
+        borderColor: '#5b7dff',
+        borderWidth: 1,
+        borderRadius: 6,
+        barPercentage: 0.55
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Quarterly Revenue ($M) with EPS Beat vs. Consensus',
+          color: '#e8eaed',
+          font: { size: 15, weight: '600' },
+          padding: { bottom: 20 }
+        },
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#111637',
+          titleColor: '#e8eaed',
+          bodyColor: '#a8b2d1',
+          borderColor: '#1e2350',
+          borderWidth: 1,
+          padding: 12,
+          callbacks: {
+            afterBody: function(context) {
+              return 'EPS Beat: ' + beats[context[0].dataIndex];
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          min: 650,
+          max: 800,
+          grid: { color: '#1e2350' },
+          ticks: { callback: v => '$' + v }
+        },
+        x: {
+          grid: { display: false }
+        }
+      },
+      animation: {
+        onComplete: function() {
+          const chart = this;
+          const ctx2 = chart.ctx;
+          ctx2.save();
+          ctx2.font = 'bold 13px -apple-system, BlinkMacSystemFont, sans-serif';
+          ctx2.textAlign = 'center';
+          ctx2.fillStyle = '#00c853';
+
+          chart.data.datasets[0].data.forEach(function(value, i) {
+            const meta = chart.getDatasetMeta(0);
+            const bar = meta.data[i];
+            ctx2.fillText(beats[i], bar.x, bar.y - 10);
+          });
+          ctx2.restore();
+        }
+      }
+    }
+  });
+})();
+
+// ── VALUATION CHART ──
+(function() {
+  const ctx = document.getElementById('valuationChart').getContext('2d');
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Bear Case', 'Base Case', 'Bull Case'],
+      datasets: [{
+        label: 'Price Target ($)',
+        data: [76, 111, 146],
+        backgroundColor: ['#ff5252', '#ffd700', '#00c853'],
+        borderRadius: 6,
+        barPercentage: 0.5
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Implied Price Target Scenarios',
+          color: '#e8eaed',
+          font: { size: 15, weight: '600' },
+          padding: { bottom: 20 }
+        },
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#111637',
+          titleColor: '#e8eaed',
+          bodyColor: '#a8b2d1',
+          borderColor: '#1e2350',
+          borderWidth: 1,
+          padding: 12,
+          callbacks: {
+            label: function(context) {
+              const multiples = ['3.5x NTM', '5.5x NTM', '7.5x NTM'];
+              return '$' + context.parsed.x + ' at ' + multiples[context.dataIndex];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          min: 0,
+          max: 170,
+          grid: { color: '#1e2350' },
+          ticks: { callback: v => '$' + v }
+        },
+        y: {
+          grid: { display: false }
+        }
+      },
+      animation: {
+        onComplete: function() {
+          const chart = this;
+          const ctx2 = chart.ctx;
+          ctx2.save();
+          ctx2.font = 'bold 12px -apple-system, BlinkMacSystemFont, sans-serif';
+          ctx2.textBaseline = 'middle';
+          ctx2.fillStyle = '#e8eaed';
+
+          const labels = ['$76 @ 3.5x', '$111 @ 5.5x', '$146 @ 7.5x'];
+
+          chart.data.datasets[0].data.forEach(function(value, i) {
+            const meta = chart.getDatasetMeta(0);
+            const bar = meta.data[i];
+            ctx2.fillText(labels[i], bar.x + 8, bar.y);
+          });
+          ctx2.restore();
+        }
+      }
+    }
+  });
+})();
+</script>
+
+<script data-pplx-inline-edit>
+(function(){
+  if(window===window.top)return;
+  function inlineAll(orig,clone){
+    if(orig.nodeType!==1)return;
+    try{
+      var cs=getComputedStyle(orig);
+      var t='';
+      for(var i=0;i<cs.length;i++){t+=cs[i]+':'+cs.getPropertyValue(cs[i])+';';}
+      clone.style.cssText=t;
+    }catch(e){}
+    var oc=orig.children,cc=clone.children;
+    for(var j=0;j<oc.length&&j<cc.length;j++){inlineAll(oc[j],cc[j]);}
+  }
+  function stripExternal(clone){
+    var imgs=clone.querySelectorAll('img');
+    for(var i=0;i<imgs.length;i++){
+      var s=imgs[i].getAttribute('src');
+      if(s&&!s.startsWith('data:'))imgs[i].removeAttribute('src');
+    }
+    var all=clone.querySelectorAll('*');
+    for(var i=0;i<all.length;i++){
+      var st=all[i].style.cssText;
+      if(st&&st.indexOf('url(')>=0){
+        all[i].style.cssText=st.replace(/url\(["']?(?!data:)[^)"']*["']?\)/gi,'none');
+      }
+    }
+  }
+  window.addEventListener('message',function(e){
+    if(!e.data||e.data.type!=='INLINE_EDIT_CAPTURE_REQUEST')return;
+    var scrollX=window.scrollX||window.pageXOffset||0;
+    var scrollY=window.scrollY||window.pageYOffset||0;
+    var w=window.innerWidth,h=window.innerHeight;
+    try{
+      var clone=document.documentElement.cloneNode(true);
+      var rm=clone.querySelectorAll('script,link[rel="stylesheet"],style');
+      for(var i=0;i<rm.length;i++){rm[i].remove();}
+      inlineAll(document.documentElement,clone);
+      stripExternal(clone);
+      var html=new XMLSerializer().serializeToString(clone);
+      var svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'">'
+        +'<foreignObject width="100%" height="100%">'
+        +'<div xmlns="http://www.w3.org/1999/xhtml" style="width:'+w+'px;height:'+h+'px;overflow:hidden">'
+        +'<div style="transform:translate(-'+scrollX+'px,-'+scrollY+'px);transform-origin:top left">'
+        +html+'</div></div></foreignObject></svg>';
+      var svgUrl='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+      var img=new Image();
+      img.onload=function(){
+        var c=document.createElement('canvas');c.width=w;c.height=h;
+        c.getContext('2d').drawImage(img,0,0);
+        window.parent.postMessage({type:'INLINE_EDIT_SCREENSHOT_RESULT',dataUrl:c.toDataURL('image/png'),scrollX:scrollX,scrollY:scrollY},'*');
+      };
+      img.onerror=function(){
+        window.parent.postMessage({type:'INLINE_EDIT_SCREENSHOT_RESULT',dataUrl:null,scrollX:scrollX,scrollY:scrollY},'*');
+      };
+      img.src=svgUrl;
+    }catch(err){
+      window.parent.postMessage({type:'INLINE_EDIT_SCREENSHOT_RESULT',dataUrl:null,scrollX:scrollX,scrollY:scrollY},'*');
+    }
+  });
+})();
+</script></body>
+</html>
