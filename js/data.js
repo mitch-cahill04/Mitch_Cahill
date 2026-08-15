@@ -1,3 +1,4 @@
+
 /**
  * ═══════════════════════════════════════════════════════════════
  *  PORTFOLIO DATA — js/data.js
@@ -28,7 +29,7 @@ const PORTFOLIO_DATA = {
     linkedin:       "https://www.linkedin.com/in/mitch-cahill-b875702b3/",
     github:         "",
     twitter:        "",
-    resumeUrl:      "Cahill-Mitch-Resume-Dec.pdf",
+    resumeUrl:      "Cahill-Mitch-Resume.pdf",
     contactHeading: "Let's Connect",
     contactSub:     "Open to opportunities in finance, venture capital, and product strategy.",
   },
@@ -309,6 +310,15 @@ const PORTFOLIO_DATA = {
       type:        "Pitch",
       description: "End-to-end product pitch proposing 'Hinge Plus One,' a new feature for Hinge designed to reduce first-date anxiety by enabling users to bring a friend. Includes user research, KPI definition, pain point analysis, MVP scoping, and A/B testing design. Presented to industry professionals.",
       url:         "Mitch-(Hinge)-PMC-Final-(1).pdf",
+    },
+    {
+      id:          "work-11",
+      title:       "IG Follower Tracker",
+      publication: "Personal Project — CS50P Final Project",
+      date:        "Built Dec 2025 (uploaded Aug 2026)",
+      type:        "Project",
+      description: "A Python command-line tool that compares your Instagram followers and following lists (from your own exported data) to identify accounts that don't follow you back, outputting a summary and detailed CSV report. Built as the final project for Harvard's CS50P in December 2025; only recently uploaded to GitHub.",
+      url:         "https://github.com/mitch-cahill04/IG-Follower-Tracker",
     },
     {
       id:          "work-10",
