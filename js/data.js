@@ -12,9 +12,9 @@
  *  EDIT PASSWORD: Stern#27Pitch
  * ═══════════════════════════════════════════════════════════════
  */
-
+ 
 const PORTFOLIO_DATA = {
-
+ 
   /* ── PERSONAL ──────────────────────────────────────────────── */
   personal: {
     name:           "Mitch Cahill",
@@ -28,11 +28,11 @@ const PORTFOLIO_DATA = {
     linkedin:       "https://www.linkedin.com/in/mitch-cahill-b875702b3/",
     github:         "",
     twitter:        "",
-    resumeUrl:      "Cahill-Mitch-Resume.pdf",
+    resumeUrl:      "Cahill-Mitch-Resume-Dec.pdf",
     contactHeading: "Let's Connect",
     contactSub:     "Open to opportunities in finance, venture capital, and product strategy.",
   },
-
+ 
   /* ── HERO STATS (shown in the card on the right) ───────────── */
   heroStats: [
     { value: "3.9",   label: "GPA at UNT"     },
@@ -40,7 +40,7 @@ const PORTFOLIO_DATA = {
     { value: "150+",  label: "Club Members"    },
     { value: "1",     label: "Publication"     },
   ],
-
+ 
   /* ── EDUCATION ──────────────────────────────────────────────── */
   education: [
     {
@@ -75,9 +75,35 @@ const PORTFOLIO_DATA = {
       ],
     },
   ],
-
+ 
   /* ── PROFESSIONAL EXPERIENCE ────────────────────────────────── */
   experience: [
+    {
+      id:       "exp-4",
+      company:  "1752vc",
+      location: "",
+      role:     "Scout",
+      period:   "Aug 2026 – Present",
+      type:     "Venture Capital",
+      bullets: [
+        "Completed venture capital fellowship focused on startup evaluation, market research, investing, and deal sourcing across emerging industries",
+        "Evaluated early-stage startups through market, product, and company research, developing investment theses and assessing growth potential",
+        "Became Scout, sourcing startups and evaluating companies based on market size, business model, competitive positioning, and growth metrics",
+      ],
+    },
+    {
+      id:       "exp-3",
+      company:  "Nielsen Holdings",
+      location: "",
+      role:     "Analytics Intern",
+      period:   "June 2026 – Aug 2026",
+      type:     "Data Science",
+      bullets: [
+        "Built database from thousands of metadata overages using regex based data processing, improving organization and usability of large datasets",
+        "Analyzed spending and subscriber trends to develop forecasting model, identifying patterns to assist projections of future spending and usage",
+        "Conducted data science study on token efficiency for MCP tool, using Python to analyze token usage and evaluate potential efficiency increase",
+      ],
+    },
     {
       id:       "exp-1",
       company:  "KMF Investments",
@@ -104,21 +130,8 @@ const PORTFOLIO_DATA = {
         "Utilized warehouse equipment to improve efficiency, organization, and workspace quality",
       ],
     },
-    {
-      id:       "exp-3",
-      company:  "Denton Natatorium",
-      location: "Denton, TX",
-      role:     "Lifeguard",
-      period:   "May 2021 – Aug 2021",
-      type:     "Operations",
-      bullets: [
-        "Managed all 3 Denton aquatic facilities: Denton Waterworks Water Park, The Denton Natatorium, and Civic Center Water Park",
-        "Earned certifications in CPR, AED, Blood Pathogens, Oxygen, and First Aid; passed physical fitness assessment",
-        "Enforced aquatic facility policies, maintaining safety for 100+ person crowds",
-      ],
-    },
   ],
-
+ 
   /* ── LEADERSHIP & EXTRACURRICULARS ──────────────────────────── */
   leadership: [
     {
@@ -138,7 +151,7 @@ const PORTFOLIO_DATA = {
       id:           "lead-2",
       organization: "Business Analytics Club",
       location:     "New York, NY",
-      role:         "Insight Team",
+      role:         "Insight Team Lead",
       period:       "Feb 2026 – Present",
       type:         "Technology",
       bullets: [
@@ -164,8 +177,8 @@ const PORTFOLIO_DATA = {
       id:           "lead-4",
       organization: "Entrepreneurial Exchange Group",
       location:     "New York, NY",
-      role:         "Investing Team",
-      period:       "Oct 2025 – Dec 2025",
+      role:         "Investing Team Analyst & Community Lead",
+      period:       "Oct 2025 – Present",
       type:         "VC/Investing",
       bullets: [
         "Participated in bi-weekly meetings focused on Venture Capital, startups, and tech; attended weekly general meetings",
@@ -200,20 +213,20 @@ const PORTFOLIO_DATA = {
       ],
     },
   ],
-
+ 
   /* ── SKILLS ─────────────────────────────────────────────────── */
   skills: {
     "Finance & Analysis":  ["Financial Modeling", "Equity Research", "Valuation", "Due Diligence", "PitchBook", "Crunchbase"],
     "Technology":          ["Python", "NumPy", "Pandas", "Microsoft Excel", "Figma"],
     "Business":            ["Product Management", "Research & Analysis", "Stakeholder Analysis", "Microsoft Word"],
   },
-
+ 
   /* ── INTERESTS ──────────────────────────────────────────────── */
   interests: [
     "Chess", "Poker", "Tennis", "Pickleball", "Acting & Theatre",
     "Weightlifting", "Football", "Hiking", "Cooking & Baking", "Geography & History",
   ],
-
+ 
   /* ── PUBLISHED WORKS ─────────────────────────────────────────*/
   publishedWorks: [
     {
@@ -298,7 +311,7 @@ const PORTFOLIO_DATA = {
       url:         "Mitch-(Hinge)-PMC-Final-(1).pdf",
     },
     {
-      id:          "work-9",
+      id:          "work-10",
       title:       "Church Chase",
       publication: "Roblox",
       date:        "Mar 2026",
@@ -307,5 +320,5 @@ const PORTFOLIO_DATA = {
       url:         "https://www.roblox.com/share?code=0dbb93a8b2072b41a5c45d882d129f9b&type=ExperienceDetails&stamp=1778878353723",
     },
   ],
-
+ 
 };
