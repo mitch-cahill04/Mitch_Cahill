@@ -29,7 +29,7 @@ const PORTFOLIO_DATA = {
     linkedin:       "https://www.linkedin.com/in/mitch-cahill-b875702b3/",
     github:         "",
     twitter:        "",
-    resumeUrl:      "Cahill-Mitch-Resume.pdf",
+    resumeUrl:      "Cahill-Mitch-Resume-Dec.pdf",
     contactHeading: "Let's Connect",
     contactSub:     "Open to opportunities in finance, venture capital, and product strategy.",
   },
